@@ -2,10 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class UserProfile(models.Model):
-    # profile_picture = models.ImageField(
-    #     upload_to="profile_pictures/", null=True, blank=True
-    # )
+class UserData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     full_name = models.CharField(max_length=30)
@@ -51,11 +48,29 @@ class UserProfile(models.Model):
         return self.user.username
 
 
-class UserHistory(models.Model):
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    # user_prfile = models.ForeignKey(
+    #     UserProfile, on_delete=models.CASCADE, related_name="user_profile"
+    # )
+    # profile_picture = models.ImageField(
+    #     upload_to="profile_pictures/", null=True, blank=True
+    # )
+    has_filled_questionnaire = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+class UserUpdateHistory(models.Model):
     user = models.ForeignKey(
-        UserProfile, on_delete=models.CASCADE, related_name="weight_history"
+        UserData, on_delete=models.CASCADE, related_name="weight_history"
     )
     weight = models.CharField(max_length=10)
+    # front_image = models.ImageField(upload_to="user_images/")
+    # side_image = models.ImageField(upload_to="user_images/")
+    # back_image = models.ImageField(upload_to="user_images/")
     recorded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
