@@ -56,7 +56,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Custom Apps
     "api",
+    # Third-Party Apps
     "rest_framework",
     "corsheaders",
 ]
