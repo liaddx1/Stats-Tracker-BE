@@ -8,3 +8,16 @@ pytz
 sqlparse
 psycopg2-binary
 python-dotenv
+django-anymail
+django-ckeditor
+django-ckeditor-5
+django-dotenv
+django-environ
+django-import-export
+django-jazzmin
+django-rest-framework
+drf-yasg
+humanize
+requests
+shortuuid
+tzdata

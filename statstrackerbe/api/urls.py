@@ -1,7 +1,18 @@
-from django.urls import path
-from . import views
+from django.contrib import admin
+from django.urls import path, include
+from api.views import CreateUserView, CurrentUserView, CustomTokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 
-urlpatterns = []
-
-# path("notes/", views.NoteListCreate.as_view(), name="note-list"),
-#     path("notes/delete/<int:pk>/", views.NoteDelete.as_view(), name="delete-note"),
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/user/register/", CreateUserView.as_view(), name="register"),
+    path(
+        "api/token/user/",
+        CurrentUserView.as_view(),
+        name="get-user-by-toekn",
+    ),
+    path("api/token/", CustomTokenObtainPairView.as_view(), name="get_token"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
+    path("api-auth/", include("rest_framework.urls")),
+    path("api/", include("api.urls")),
+]
