@@ -18,13 +18,9 @@ class CreateUserView(generics.CreateAPIView):
 
 class CurrentUserView(APIView):
     def get(self, request):
-        profile = request.user.userprofile
-        data = request.user.userdata
         context = {
             "username": request.user.username,
             "is_staff": request.user.is_staff,
-            "user_profile": profile,
-            "user_data": data,
         }
         serializer = UserSerializer(context)
         return Response(serializer.data)
