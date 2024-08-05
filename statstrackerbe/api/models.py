@@ -6,34 +6,6 @@ from shortuuid.django_fields import ShortUUIDField
 import shortuuid
 
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
-    profile_picture = models.FileField(
-        upload_to=f"images/{user.__str__}/profile_picture/",
-        default="default/default-user.jpg",
-        null=True,
-        blank=True,
-    )
-    has_filled_questionnaire = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.user.username
-
-
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-
-def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
-
-
-post_save.connect(create_user_profile, sender=User)
-post_save.connect(save_user_profile, sender=User)
-
-
 class UserData(models.Model):
     GENDER = (
         ("זכר", "זכר"),
@@ -57,25 +29,25 @@ class UserData(models.Model):
     full_name = models.CharField(max_length=30, null=True)
     israeli_id = models.CharField(max_length=9, unique=True)
     email = models.EmailField()
-    phone_number = models.CharField(max_length=10)
+    phone = models.CharField(max_length=10)
     city = models.CharField(max_length=10)
     address = models.CharField(max_length=30)
     height = models.CharField(max_length=10)
     weight = models.CharField(max_length=10)
-    birthdate = models.DateField(null=True)
-    guardian_phone_number = models.CharField(max_length=10, blank=True, default="")
+    age = models.DateField(null=True)
     guardian_name = models.CharField(max_length=30, blank=True, default="")
+    guardian_phone_number = models.CharField(max_length=10, blank=True, default="")
     gender = models.CharField(max_length=10, choices=GENDER)
     is_having_regular_menstruation = models.BooleanField(default=True, blank=True)
     is_on_cocp = models.BooleanField(default=False, blank=True)
     front_image = models.FileField(
-        upload_to=f"images/{user.__str__}/questionnaire/", null=True, blank=True
+        upload_to=f"images/questionnaire/", null=True, blank=True
     )
     side_image = models.FileField(
-        upload_to=f"images/{user.__str__}/questionnaire/", null=True, blank=True
+        upload_to=f"images/questionnaire/", null=True, blank=True
     )
     back_image = models.FileField(
-        upload_to=f"images/{user.__str__}/questionnaire/", null=True, blank=True
+        upload_to=f"images/questionnaire/", null=True, blank=True
     )
     daily_routine = models.TextField()
     daily_diet = models.TextField()
@@ -94,7 +66,7 @@ class UserData(models.Model):
     thousand_calorie_diet = models.TextField(blank=True, default="")
     current_training = models.TextField(blank=True, default="")
     current_training_image = models.FileField(
-        upload_to=f"images/{user.__str__}/current_training/", null=True, blank=True
+        upload_to=f"images/current_training/", null=True, blank=True
     )
     weekly_aerobic = models.TextField(blank=True, default="")
     unliked_exercises = models.TextField(blank=True, default="")
@@ -107,17 +79,36 @@ class UserData(models.Model):
         return f"{self.user.username} - {self.israeli_id}"
 
 
-def create_user_data(sender, instance, created, **kwargs):
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    user_data = models.ForeignKey(
+        UserData, null=True, blank=True, on_delete=models.CASCADE
+    )
+    profile_picture = models.FileField(
+        upload_to=f"images/profile_picture/",
+        default="default/default-user.jpg",
+        null=True,
+        blank=True,
+    )
+    has_filled_questionnaire = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+def create_user_related_data(sender, instance, created, **kwargs):
     if created:
-        UserData.objects.create(user=instance)
+        user_data = UserData.objects.create(user=instance)
+        UserProfile.objects.create(user=instance, user_data=user_data)
 
 
-def save_user_data(sender, instance, **kwargs):
-    instance.userdata.save()
+def save_user_profile(sender, instance, **kwargs):
+    instance.userprofile.save()
 
 
-post_save.connect(create_user_data, sender=User)
-post_save.connect(save_user_data, sender=User)
+post_save.connect(create_user_related_data, sender=User)
+post_save.connect(save_user_profile, sender=User)
 
 
 class UserUpdateHistory(models.Model):
@@ -173,17 +164,17 @@ class UserUpdateHistory(models.Model):
     avg_sleep_hours = models.CharField(max_length=10, default="")
     further_info = models.TextField(default="")
     front_image = models.FileField(
-        upload_to=f"images/{profile.__str__}/update_history/{recorded_at}/",
+        upload_to=f"images/update_history/{recorded_at}/",
         null=True,
         blank=True,
     )
     side_image = models.FileField(
-        upload_to=f"images/{profile.__str__}/update_history/{recorded_at}/",
+        upload_to=f"images/update_history/{recorded_at}/",
         null=True,
         blank=True,
     )
     back_image = models.FileField(
-        upload_to=f"images/{profile.__str__}/update_history/{recorded_at}/",
+        upload_to=f"images/update_history/{recorded_at}/",
         null=True,
         blank=True,
     )
@@ -207,12 +198,12 @@ class Notification(models.Model):
     user_profile = models.ForeignKey(UserProfile, null=True, on_delete=models.CASCADE)
     type = models.CharField(choices=NOTI_TYPE, max_length=50, default="מידע")
     is_watched = models.BooleanField(default=False)
-    created_at = models.DateTimeField( auto_now_add = True)
-
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return f"{self.user.username}: {self.type} - {self.is_watched} | {self.created_at}"
+        return (
+            f"{self.user.username}: {self.type} - {self.is_watched} | {self.created_at}"
+        )
 
     class Meta:
         ordering = ["-created_at"]
-

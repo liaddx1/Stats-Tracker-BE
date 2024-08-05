@@ -1,4 +1,15 @@
 from django.urls import path
-from . import views
+from .views import *
 
-urlpatterns = []
+urlpatterns = [
+    path(
+        "user/update-history/",
+        UserUpdateHistoryAPIView.as_view(),
+        name="user-update-history",
+    ),
+    path(
+        "user/questionnaire/",
+        UserQuestionnaireView.as_view(),
+        name="user-questionnaire",
+    ),
+]
