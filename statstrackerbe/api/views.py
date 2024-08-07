@@ -8,27 +8,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import UserProfile, UserUpdateHistory
-from .serializers import *
-
-
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.db.models import Sum
-
-# Restframework
 from rest_framework import status
-from rest_framework.decorators import api_view, APIView, permission_classes
-from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
+from .utils import send_welcome_email, send_which_user_filled_questionnaire
+from .serializers import *
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -42,6 +24,7 @@ class CurrentUserView(APIView):
         context = {
             "username": request.user.username,
             "is_staff": request.user.is_staff,
+            "user_profile": request.user.userprofile,
         }
         serializer = UserSerializer(context)
         return Response(serializer.data)
@@ -74,10 +57,24 @@ class UserQuestionnaireView(generics.UpdateAPIView):
     serializer_class = UserDataSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_object(self):
+    def update_user(self):
+        # Update the user profile
         user = self.request.user
-        return UserData.objects.get(user=user)
+        user_profile, created = UserProfile.objects.get_or_create(user=user)
+        user_profile.has_filled_questionnaire = True
+        user_profile.save()
 
-    def perform_update(self, serializer):
         print(f"User {self.request.user.username} has filled the questionnaire")
-        serializer.save(user=self.request.user)
+
+    def put(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response(
+                {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        send_welcome_email(email)
+        send_which_user_filled_questionnaire(request.user.username)
+
+        self.update_user()
+
+        return Response({"message": "Welcome email sent"})

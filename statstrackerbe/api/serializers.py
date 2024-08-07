@@ -28,26 +28,31 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token["user_id"] = user.id
         token["username"] = user.username
         token["is_staff"] = user.is_staff
+        token["full_name"] = user.userdata.full_name
         token["has_filled_questionnaire"] = user.userprofile.has_filled_questionnaire
         return token
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    email = serializers.ReadOnlyField(source="user_data.email")
+    full_name = serializers.ReadOnlyField(source="user_data.full_name")
+
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
+
+
 class UserSerializer(serializers.ModelSerializer):
+    user_profile = UserProfileSerializer(read_only=True)
+
     class Meta:
         model = User
         fields = [
             "id",
             "username",
             "is_staff",
+            "user_profile",
         ]
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    email = serializers.ReadOnlyField(source="user_data.email")
-
-    class Meta:
-        model = UserProfile
-        fields = "__all__"
 
 
 class UserDataSerializer(serializers.ModelSerializer):
