@@ -12,4 +12,5 @@ urlpatterns = [
         UserQuestionnaireView.as_view(),
         name="user-questionnaire",
     ),
+    path("contact-us/", ContactUsView.as_view(), name="contact-us"),
 ]

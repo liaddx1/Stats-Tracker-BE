@@ -27,7 +27,7 @@ class UserData(models.Model):
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=30, null=True)
-    israeli_id = models.CharField(max_length=9, unique=True)
+    israeli_id = models.CharField(max_length=9, unique=True, null=True)
     email = models.EmailField()
     phone = models.CharField(max_length=10)
     city = models.CharField(max_length=10)

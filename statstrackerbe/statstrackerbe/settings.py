@@ -284,4 +284,4 @@ EMAIL_USE_TLS = True
 EMAIL_TIMEOUT = 300  # in seconds
 EMAIL_HOST_USER = "NLFitnessTracker@gmail.com"
 EMAIL_HOST_PASSWORD = "agre hctu moyv ywkg"
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = "NF Fitness Tracker"

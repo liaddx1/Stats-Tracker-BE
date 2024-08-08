@@ -9,7 +9,12 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import UserProfile, UserUpdateHistory
 from rest_framework import status
-from .utils import send_welcome_email, send_which_user_filled_questionnaire
+from .utils import (
+    send_welcome_email,
+    send_which_user_filled_questionnaire,
+    send_contact_us_email_to_us,
+    send_contact_us_email_to_client,
+)
 from .serializers import *
 
 
@@ -57,9 +62,7 @@ class UserQuestionnaireView(generics.UpdateAPIView):
     serializer_class = UserDataSerializer
     permission_classes = [IsAuthenticated]
 
-    def update_user(self):
-        # Update the user profile
-        user = self.request.user
+    def update_user_profile(self, user):
         user_profile, created = UserProfile.objects.get_or_create(user=user)
         user_profile.has_filled_questionnaire = True
         user_profile.save()
@@ -72,9 +75,43 @@ class UserQuestionnaireView(generics.UpdateAPIView):
             return Response(
                 {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
             )
-        send_welcome_email(email)
-        send_which_user_filled_questionnaire(request.user.username)
 
-        self.update_user()
+        try:
+            user_data = UserData.objects.get(user=request.user)
+        except UserData.DoesNotExist:
+            user_data = UserData(user=request.user)
 
-        return Response({"message": "Welcome email sent"})
+        serializer = self.get_serializer(user_data, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            self.update_user_profile(request.user)
+
+            send_welcome_email(email, request.data.get("full_name"))
+            send_which_user_filled_questionnaire(request.data.get("full_name"))
+            return Response({"message": "User data updated and welcome email sent"})
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ContactUsView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        full_name = request.data.get("full_name")
+        phone = request.data.get("phone")
+        email = request.data.get("email")
+        content = request.data.get("content")
+
+        if not email:
+            return Response(
+                {"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        send_contact_us_email_to_client(full_name, email)
+        send_contact_us_email_to_us(full_name, email, phone, content)
+        return Response(
+            {"message": "Sent!"},
+            status=status.HTTP_200_OK,
+        )
