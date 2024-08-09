@@ -6,12 +6,11 @@ from django.utils.html import strip_tags
 def send_welcome_email(to_email, fullname):
     subject = f"{fullname}, שאלון ההתאמה שלך נשלח בהצלחה!"
     message_html = f"""
-    <html>
-        <body>
+    <html dir="rtl">
+        <body dir="rtl">
                 <p>!{fullname}, שאלון ההתאמה נשלח אלינו</p>
                 <p>.נעבוד על התוכנית אימונים והתפריט תזונה שלך בהקדם האפשרי</p>
                 <p>.אם יש שאלות כמובן שאני תמיד זמין</p>
-                <p>!שימו לב לא לשכוח למלא את השאלון עדכון מתי שצריך כדי שנוכל לעדכן גם את התוכניות</p>            
         </body>
 
          <style>@import url('https://fonts.googleapis.com/css?family=Oxygen');</style>
@@ -62,8 +61,8 @@ def send_which_user_filled_questionnaire(fullname):
 def send_contact_us_email_to_client(full_name, email):
     subject = f"{full_name} תודה שיצרת איתנו קשר!"
     message_html = f"""
-    <html>
-        <body>
+    <html dir="rtl">
+        <body dir="rtl">
                 <p>!{full_name}, תודה שיצרת קשר איתנו</p>
                 <p>.ניצור איתך קשר ברגע שנוכל</p>     
         </body>
@@ -108,9 +107,9 @@ def send_contact_us_email_to_us(full_name, email, phone, content):
     if len(content) > 0:
         content = f"<p>{content} :טקסט שהם רשמו</p>"
     message_html = f"""
-    <html>
-        <body>
-                <p>!{full_name} יצר איתנו קשר</p>
+    <html dir="rtl">
+        <body dir="rtl">
+                <p>!{full_name} יצר איתנו קשר והשאיר פרטים</p>
                 <p>:פרטים</p>     
                 <p>{email} :אימייל</p>     
                 <p>{phone} :מס' פלאפון</p>     

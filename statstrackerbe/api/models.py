@@ -125,27 +125,27 @@ class UserUpdateHistory(models.Model):
         ("10", "10"),
     )
 
-    # halfs_one_to_ten = (
-    #     ("0.5", "0.5"),
-    #     ("1", "1"),
-    #     ("1.5", "1.5"),
-    #     ("2", "2"),
-    #     ("2.5", "2.5"),
-    #     ("3", "3"),
-    #     ("3.5", "3.5"),
-    #     ("4", "4"),
-    #     ("4.5", "4.5"),
-    #     ("5", "5"),
-    #     ("5.5", "5.5"),
-    #     ("6", "6"),
-    #     ("6.5", "6.5"),
-    #     ("7", "7"),
-    #     ("7.5", "7.5"),
-    #     ("8", "8"),
-    #     ("8.5", "8.5"),
-    #     ("9.5", "9.5"),
-    #     ("10", "10"),
-    # )
+    HALF_ONE_TO_TEN = (
+        ("0.5", "0.5"),
+        ("1", "1"),
+        ("1.5", "1.5"),
+        ("2", "2"),
+        ("2.5", "2.5"),
+        ("3", "3"),
+        ("3.5", "3.5"),
+        ("4", "4"),
+        ("4.5", "4.5"),
+        ("5", "5"),
+        ("5.5", "5.5"),
+        ("6", "6"),
+        ("6.5", "6.5"),
+        ("7", "7"),
+        ("7.5", "7.5"),
+        ("8", "8"),
+        ("8.5", "8.5"),
+        ("9.5", "9.5"),
+        ("10", "10"),
+    )
     user = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE, null=True)
     recorded_at = models.DateTimeField(auto_now_add=True)
@@ -157,9 +157,11 @@ class UserUpdateHistory(models.Model):
     level_of_diet_fulfillment = models.CharField(
         max_length=10, choices=ONE_TO_TEN, default=""
     )
-    protein_intake = models.CharField(max_length=10, choices=ONE_TO_TEN, default="")
-    carb_intake = models.CharField(max_length=10, choices=ONE_TO_TEN, default="")
-    fat_intake = models.CharField(max_length=10, choices=ONE_TO_TEN, default="")
+    protein_intake = models.CharField(
+        max_length=10, choices=HALF_ONE_TO_TEN, default=""
+    )
+    carb_intake = models.CharField(max_length=10, choices=HALF_ONE_TO_TEN, default="")
+    fat_intake = models.CharField(max_length=10, choices=HALF_ONE_TO_TEN, default="")
     water_intake = models.TextField(default="")
     avg_sleep_hours = models.CharField(max_length=10, default="")
     further_info = models.TextField(default="")
