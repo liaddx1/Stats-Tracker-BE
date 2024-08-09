@@ -1,3 +1,2 @@
-web: pip3 install -r requirements.txt
-web: pip install -r requirements.txt
+web: pip3 install -r requiremensts.txt
 web: python manage.py runserver 0.0.0.0:8000
